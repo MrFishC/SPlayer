@@ -25,31 +25,46 @@
 
 
 //
-// Created by Administrator on 2018-03-01.
+// Created by Administrator on 2018-03-02.
 //
 
-#ifndef XPLAY_XDATA_H
-#define XPLAY_XDATA_H
-enum XDataType
-{
-    AVPACKET_TYPE = 0,
-    UCHAR_TYPE = 1
-};
+#ifndef XPLAY_IDECODE_H
+#define XPLAY_IDECODE_H
 
-
-struct XData
+#include "XParameter.h"
+#include "IObserver.h"
+#include <list>
+//解码接口，支持硬解码
+class IDecode:public IObserver
 {
-    int type = 0;
-    unsigned char *data = 0;
-    unsigned char *datas[8] = {0};
-    int size = 0;
+public:
+    //打开解码器
+    virtual bool Open(XParameter para,bool isHard=false) = 0;
+
+    //future模型 发送数据到线程解码
+    virtual bool SendPacket(XData pkt) = 0;
+
+    //从线程中获取解码结果  再次调用会复用上次空间，线程不安全
+    virtual XData RecvFrame() = 0;
+
+    //由主体notify的数据 阻塞
+    virtual void Update(XData pkt);
+
     bool isAudio = false;
-    int width = 0;
-    int height = 0;
-    int format = 0;
-    bool Alloc(int size,const char *data=0);
-    void Drop();
+
+    //最大的队列缓冲
+    int maxList = 100;
+
+
+protected:
+    virtual void Main();
+
+    //读取缓冲
+    std::list<XData> packs;
+    std::mutex packsMutex;
+
+
 };
 
 
-#endif //XPLAY_XDATA_H
+#endif //XPLAY_IDECODE_H

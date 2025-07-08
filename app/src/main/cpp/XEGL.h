@@ -25,31 +25,23 @@
 
 
 //
-// Created by Administrator on 2018-03-01.
+// Created by Administrator on 2018-03-04.
 //
 
-#ifndef XPLAY_XDATA_H
-#define XPLAY_XDATA_H
-enum XDataType
+#ifndef XPLAY_XEGL_H
+#define XPLAY_XEGL_H
+
+
+class XEGL
 {
-    AVPACKET_TYPE = 0,
-    UCHAR_TYPE = 1
+public:
+    virtual bool Init(void *win) = 0;
+    virtual void Draw() = 0;
+    static XEGL *Get();
+
+protected:
+    XEGL(){}
 };
 
 
-struct XData
-{
-    int type = 0;
-    unsigned char *data = 0;
-    unsigned char *datas[8] = {0};
-    int size = 0;
-    bool isAudio = false;
-    int width = 0;
-    int height = 0;
-    int format = 0;
-    bool Alloc(int size,const char *data=0);
-    void Drop();
-};
-
-
-#endif //XPLAY_XDATA_H
+#endif //XPLAY_XEGL_H

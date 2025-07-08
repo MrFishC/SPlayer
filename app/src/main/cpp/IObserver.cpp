@@ -28,28 +28,27 @@
 // Created by Administrator on 2018-03-01.
 //
 
-#ifndef XPLAY_XDATA_H
-#define XPLAY_XDATA_H
-enum XDataType
+#include "IObserver.h"
+
+
+//主体函数 添加观察者
+void IObserver::AddObs(IObserver *obs)
 {
-    AVPACKET_TYPE = 0,
-    UCHAR_TYPE = 1
-};
+    if(!obs)return;
+    mux.lock();
+    obss.push_back(obs);
+    mux.unlock();
+}
 
-
-struct XData
+//通知所有观察者
+void IObserver::Notify(XData data)
 {
-    int type = 0;
-    unsigned char *data = 0;
-    unsigned char *datas[8] = {0};
-    int size = 0;
-    bool isAudio = false;
-    int width = 0;
-    int height = 0;
-    int format = 0;
-    bool Alloc(int size,const char *data=0);
-    void Drop();
-};
 
+    mux.lock();
+    for(int i =0; i < obss.size(); i++)
+    {
+        obss[i]->Update(data);
+    }
+    mux.unlock();
 
-#endif //XPLAY_XDATA_H
+}

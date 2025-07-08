@@ -25,31 +25,26 @@
 
 
 //
-// Created by Administrator on 2018-03-01.
+// Created by Administrator on 2018-03-05.
 //
 
-#ifndef XPLAY_XDATA_H
-#define XPLAY_XDATA_H
-enum XDataType
+#ifndef XPLAY_SLAUDIOPLAY_H
+#define XPLAY_SLAUDIOPLAY_H
+
+
+#include "IAudioPlay.h"
+
+class SLAudioPlay: public IAudioPlay
 {
-    AVPACKET_TYPE = 0,
-    UCHAR_TYPE = 1
+public:
+    virtual bool StartPlay(XParameter out);
+    void PlayCall(void *bufq);
+
+    SLAudioPlay();
+    virtual ~SLAudioPlay();
+protected:
+    unsigned char *buf = 0;
 };
 
 
-struct XData
-{
-    int type = 0;
-    unsigned char *data = 0;
-    unsigned char *datas[8] = {0};
-    int size = 0;
-    bool isAudio = false;
-    int width = 0;
-    int height = 0;
-    int format = 0;
-    bool Alloc(int size,const char *data=0);
-    void Drop();
-};
-
-
-#endif //XPLAY_XDATA_H
+#endif //XPLAY_SLAUDIOPLAY_H

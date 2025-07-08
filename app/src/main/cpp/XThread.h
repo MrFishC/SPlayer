@@ -28,28 +28,32 @@
 // Created by Administrator on 2018-03-01.
 //
 
-#ifndef XPLAY_XDATA_H
-#define XPLAY_XDATA_H
-enum XDataType
+#ifndef XPLAY_XTHREAD_H
+#define XPLAY_XTHREAD_H
+
+//sleep 毫秒
+void XSleep(int mis);
+
+//c++ 11 线程库
+class XThread
 {
-    AVPACKET_TYPE = 0,
-    UCHAR_TYPE = 1
+public:
+    //启动线程
+    virtual void Start();
+
+    //通过控制isExit安全停止线程（不一定成功）
+    virtual void Stop();
+
+    //入口主函数
+    virtual void Main() {}
+
+protected:
+    bool isExit = false;
+    bool isRuning = false;
+private:
+    void ThreadMain();
+
 };
 
 
-struct XData
-{
-    int type = 0;
-    unsigned char *data = 0;
-    unsigned char *datas[8] = {0};
-    int size = 0;
-    bool isAudio = false;
-    int width = 0;
-    int height = 0;
-    int format = 0;
-    bool Alloc(int size,const char *data=0);
-    void Drop();
-};
-
-
-#endif //XPLAY_XDATA_H
+#endif //XPLAY_XTHREAD_H

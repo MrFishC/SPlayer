@@ -20,7 +20,22 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         IDemux.cpp
         XData.cpp
         FFDemux.cpp
-        XLog.cpp)
+        XLog.cpp
+        XThread.cpp
+        IObserver.cpp
+        IDecode.cpp
+        FFDecode.cpp
+        XParameter.cpp
+        IVideoView.cpp
+        GLVideoView.cpp
+        XTexture.cpp
+        XEGL.cpp
+        XShader.cpp
+        FFResample.cpp
+        IResample.cpp
+        SLAudioPlay.cpp
+        IAudioPlay.cpp
+)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
         avcodec

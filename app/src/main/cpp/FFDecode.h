@@ -25,31 +25,34 @@
 
 
 //
-// Created by Administrator on 2018-03-01.
+// Created by Administrator on 2018-03-02.
 //
 
-#ifndef XPLAY_XDATA_H
-#define XPLAY_XDATA_H
-enum XDataType
+#ifndef XPLAY_FFDECODE_H
+#define XPLAY_FFDECODE_H
+
+
+#include "XParameter.h"
+#include "IDecode.h"
+
+struct AVCodecContext;
+struct AVFrame;
+class FFDecode:public IDecode
 {
-    AVPACKET_TYPE = 0,
-    UCHAR_TYPE = 1
+public:
+    static void InitHard(void *vm);
+
+    virtual bool Open(XParameter para,bool isHard=false);
+    //future模型 发送数据到线程解码
+    virtual bool SendPacket(XData pkt);
+
+    //从线程中获取解码结果，再次调用会复用上次空间，线程不安全
+    virtual XData RecvFrame();
+
+protected:
+    AVCodecContext *codec = 0;
+    AVFrame *frame = 0;
 };
 
 
-struct XData
-{
-    int type = 0;
-    unsigned char *data = 0;
-    unsigned char *datas[8] = {0};
-    int size = 0;
-    bool isAudio = false;
-    int width = 0;
-    int height = 0;
-    int format = 0;
-    bool Alloc(int size,const char *data=0);
-    void Drop();
-};
-
-
-#endif //XPLAY_XDATA_H
+#endif //XPLAY_FFDECODE_H

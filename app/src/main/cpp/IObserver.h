@@ -28,28 +28,31 @@
 // Created by Administrator on 2018-03-01.
 //
 
-#ifndef XPLAY_XDATA_H
-#define XPLAY_XDATA_H
-enum XDataType
+#ifndef XPLAY_IOBSERVER_H
+#define XPLAY_IOBSERVER_H
+
+#include "XData.h"
+#include "XThread.h"
+#include <vector>
+#include <mutex>
+
+//观察者 和 主体
+class IObserver:public XThread
 {
-    AVPACKET_TYPE = 0,
-    UCHAR_TYPE = 1
+public:
+    //观察者接收数据函数
+    virtual void Update(XData data) {}
+
+    //主体函数 添加观察者(线程安全)
+    void AddObs(IObserver *obs);
+
+    //通知所有观察者(线程安全)
+    void Notify(XData data);
+
+protected:
+    std::vector<IObserver *>obss;
+    std::mutex mux;
 };
 
 
-struct XData
-{
-    int type = 0;
-    unsigned char *data = 0;
-    unsigned char *datas[8] = {0};
-    int size = 0;
-    bool isAudio = false;
-    int width = 0;
-    int height = 0;
-    int format = 0;
-    bool Alloc(int size,const char *data=0);
-    void Drop();
-};
-
-
-#endif //XPLAY_XDATA_H
+#endif //XPLAY_IOBSERVER_H

@@ -25,31 +25,46 @@
 
 
 //
-// Created by Administrator on 2018-03-01.
+// Created by Administrator on 2018-03-05.
 //
 
-#ifndef XPLAY_XDATA_H
-#define XPLAY_XDATA_H
-enum XDataType
+#include "IAudioPlay.h"
+#include "XLog.h"
+XData IAudioPlay::GetData()
 {
-    AVPACKET_TYPE = 0,
-    UCHAR_TYPE = 1
-};
+    XData d;
 
-
-struct XData
+    while(!isExit)
+    {
+        framesMutex.lock();
+        if(!frames.empty())
+        {
+            d = frames.front();
+            frames.pop_front();
+            framesMutex.unlock();
+            return d;
+        }
+        framesMutex.unlock();
+        XSleep(1);
+    }
+    return d;
+}
+void IAudioPlay::Update(XData data)
 {
-    int type = 0;
-    unsigned char *data = 0;
-    unsigned char *datas[8] = {0};
-    int size = 0;
-    bool isAudio = false;
-    int width = 0;
-    int height = 0;
-    int format = 0;
-    bool Alloc(int size,const char *data=0);
-    void Drop();
-};
-
-
-#endif //XPLAY_XDATA_H
+    //XLOGE("IAudioPlay::Update %d",data.size);
+    //压入缓冲队列
+    if(data.size<=0|| !data.data) return;
+    while(!isExit)
+    {
+        framesMutex.lock();
+        if(frames.size() > maxFrame)
+        {
+            framesMutex.unlock();
+            XSleep(1);
+            continue;
+        }
+        frames.push_back(data);
+        framesMutex.unlock();
+        break;
+    }
+}

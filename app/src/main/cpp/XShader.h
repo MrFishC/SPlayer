@@ -25,31 +25,33 @@
 
 
 //
-// Created by Administrator on 2018-03-01.
+// Created by Administrator on 2018-03-04.
 //
 
-#ifndef XPLAY_XDATA_H
-#define XPLAY_XDATA_H
-enum XDataType
+#ifndef XPLAY_XSHADER_H
+#define XPLAY_XSHADER_H
+enum XShaderType
 {
-    AVPACKET_TYPE = 0,
-    UCHAR_TYPE = 1
+    XSHADER_YUV420P = 0,    //软解码和虚拟机
+    XSHADER_NV12 = 25,      //手机
+    XSHADER_NV21 = 26
+};
+
+class XShader
+{
+public:
+    virtual bool Init(XShaderType type=XSHADER_YUV420P);
+
+    //获取材质并映射到内存
+    virtual void GetTexture(unsigned int index,int width,int height, unsigned char *buf,bool isa=false);
+    virtual void Draw();
+
+protected:
+    unsigned int vsh = 0;
+    unsigned int fsh = 0;
+    unsigned int program = 0;
+    unsigned int texts[100] = {0};
 };
 
 
-struct XData
-{
-    int type = 0;
-    unsigned char *data = 0;
-    unsigned char *datas[8] = {0};
-    int size = 0;
-    bool isAudio = false;
-    int width = 0;
-    int height = 0;
-    int format = 0;
-    bool Alloc(int size,const char *data=0);
-    void Drop();
-};
-
-
-#endif //XPLAY_XDATA_H
+#endif //XPLAY_XSHADER_H

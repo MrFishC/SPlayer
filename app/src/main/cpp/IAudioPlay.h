@@ -25,31 +25,33 @@
 
 
 //
-// Created by Administrator on 2018-03-01.
+// Created by Administrator on 2018-03-05.
 //
 
-#ifndef XPLAY_XDATA_H
-#define XPLAY_XDATA_H
-enum XDataType
+#ifndef XPLAY_IAUDIOPLAY_H
+#define XPLAY_IAUDIOPLAY_H
+
+
+#include <list>
+#include "IObserver.h"
+#include "XParameter.h"
+
+class IAudioPlay: public IObserver
 {
-    AVPACKET_TYPE = 0,
-    UCHAR_TYPE = 1
+public:
+    //缓冲满后阻塞
+    virtual void Update(XData data);
+
+    //获取缓冲数据，如没有则阻塞
+    virtual XData GetData();
+
+    virtual bool StartPlay(XParameter out) = 0;
+    //最大缓冲
+    int maxFrame = 100;
+protected:
+    std::list <XData> frames;
+    std::mutex framesMutex;
 };
 
 
-struct XData
-{
-    int type = 0;
-    unsigned char *data = 0;
-    unsigned char *datas[8] = {0};
-    int size = 0;
-    bool isAudio = false;
-    int width = 0;
-    int height = 0;
-    int format = 0;
-    bool Alloc(int size,const char *data=0);
-    void Drop();
-};
-
-
-#endif //XPLAY_XDATA_H
+#endif //XPLAY_IAUDIOPLAY_H

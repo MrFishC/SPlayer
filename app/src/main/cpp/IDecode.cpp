@@ -25,31 +25,70 @@
 
 
 //
-// Created by Administrator on 2018-03-01.
+// Created by Administrator on 2018-03-02.
 //
 
-#ifndef XPLAY_XDATA_H
-#define XPLAY_XDATA_H
-enum XDataType
+#include "IDecode.h"
+#include "XLog.h"
+
+//由主体notify的数据
+void IDecode::Update(XData pkt)
 {
-    AVPACKET_TYPE = 0,
-    UCHAR_TYPE = 1
-};
+    if(pkt.isAudio != isAudio)
+    {
+        return;
+    }
+    while (!isExit)
+    {
+        packsMutex.lock();
+
+        //阻塞
+        if(packs.size() < maxList)
+        {
+            //生产者
+            packs.push_back(pkt);
+            packsMutex.unlock();
+            break;
+        }
+        packsMutex.unlock();
+        XSleep(1);
+    }
 
 
-struct XData
+}
+
+void IDecode::Main()
 {
-    int type = 0;
-    unsigned char *data = 0;
-    unsigned char *datas[8] = {0};
-    int size = 0;
-    bool isAudio = false;
-    int width = 0;
-    int height = 0;
-    int format = 0;
-    bool Alloc(int size,const char *data=0);
-    void Drop();
-};
+    while(!isExit)
+    {
+        packsMutex.lock();
+        if(packs.empty())
+        {
+            packsMutex.unlock();
+            XSleep(1);
+            continue;
+        }
+        //取出packet 消费者
+        XData pack = packs.front();
+        packs.pop_front();
 
+        //发送数据到解码线程，一个数据包，可能解码多个结果
+        if(this->SendPacket(pack))
+        {
+            while(!isExit)
+            {
+                //获取解码数据
+                XData frame = RecvFrame();
+                if(!frame.data) break;
+                //XLOGE("RecvFrame %d",frame.size);
 
-#endif //XPLAY_XDATA_H
+                //发送数据给观察者
+                this->Notify(frame);
+
+            }
+
+        }
+        pack.Drop();
+        packsMutex.unlock();
+    }
+}

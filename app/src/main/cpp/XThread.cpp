@@ -28,28 +28,46 @@
 // Created by Administrator on 2018-03-01.
 //
 
-#ifndef XPLAY_XDATA_H
-#define XPLAY_XDATA_H
-enum XDataType
+#include "XThread.h"
+#include "XLog.h"
+
+#include <thread>
+using namespace std;
+void XSleep(int mis)
 {
-    AVPACKET_TYPE = 0,
-    UCHAR_TYPE = 1
-};
-
-
-struct XData
+    chrono::milliseconds du(mis);
+    this_thread::sleep_for(du);
+}
+//启动线程
+void XThread::Start()
 {
-    int type = 0;
-    unsigned char *data = 0;
-    unsigned char *datas[8] = {0};
-    int size = 0;
-    bool isAudio = false;
-    int width = 0;
-    int height = 0;
-    int format = 0;
-    bool Alloc(int size,const char *data=0);
-    void Drop();
-};
+    isExit = false;
+    thread th(&XThread::ThreadMain,this);
+    th.detach();
+}
+void XThread::ThreadMain()
+{
+    isRuning = true;
+    XLOGI("线程函数进入");
+    Main();
+    XLOGI("线程函数退出");
+    isRuning = false;
+}
 
 
-#endif //XPLAY_XDATA_H
+//通过控制isExit安全停止线程（不一定成功）
+void XThread::Stop()
+{XLOGI("Stop 停止线程begin!");
+    isExit = true;
+    for(int i = 0; i < 200; i++)
+    {
+        if(!isRuning)
+        {
+            XLOGI("Stop 停止线程成功!");
+            return;
+        }
+        XSleep(1);
+    }
+    XLOGI("Stop 停止线程超时!");
+
+}
