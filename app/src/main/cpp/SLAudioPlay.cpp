@@ -1,44 +1,19 @@
-/*******************************************************************************
-**                                                                            **
-**                     Jiedi(China nanjing)Ltd.                               **
-**	               创建：夏曹俊，此代码可用作为学习参考                       **
-*******************************************************************************/
-
-/*****************************FILE INFOMATION***********************************
-**
-** Project       : FFmpeg
-** Description   : FFMPEG项目创建示例
-** Contact       : xiacaojun@qq.com
-**        博客   : http://blog.csdn.net/jiedichina
-**		视频课程 : 网易云课堂	http://study.163.com/u/xiacaojun		
-				   腾讯课堂		https://jiedi.ke.qq.com/				
-				   csdn学院		http://edu.csdn.net/lecturer/lecturer_detail?lecturer_id=961	
-**                 51cto学院	http://edu.51cto.com/lecturer/index/user_id-12016059.html	
-** 				   下载最新的ffmpeg版本 ffmpeg.club
-**                 
-**   安卓流媒体播放器 课程群 ：23304930 加入群下载代码和交流
-**   微信公众号  : jiedi2007
-**		头条号	 : 夏曹俊
-**
-*******************************************************************************/
-//！！！！！！！！！ 加群23304930下载代码和交流
-
-
 //
-// Created by Administrator on 2018-03-05.
+// Created by jack on 2025-07-08.
 //
 
 #include "SLAudioPlay.h"
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include "XLog.h"
+
+//static 修饰，仅在本cpp文件有效
 static SLObjectItf engineSL = NULL;
 static SLEngineItf eng = NULL;
 static SLObjectItf mix = NULL;
 static SLObjectItf player = NULL;
 static SLPlayItf iplayer = NULL;
 static SLAndroidSimpleBufferQueueItf pcmQue = NULL;
-
 
 SLAudioPlay::SLAudioPlay()
 {
@@ -66,6 +41,7 @@ static SLEngineItf CreateSL()
 void SLAudioPlay::PlayCall(void *bufq)
 {
     if(!bufq)return;
+
     SLAndroidSimpleBufferQueueItf bf = (SLAndroidSimpleBufferQueueItf)bufq;
     //XLOGE("SLAudioPlay::PlayCall");
     //阻塞
@@ -78,9 +54,12 @@ void SLAudioPlay::PlayCall(void *bufq)
     if(!buf)
         return;
     memcpy(buf,d.data,d.size);
+//    mux.lock();
+//    if(pcmQue && (*pcmQue))
+//        (*pcmQue)->Enqueue(pcmQue,buf,d.size);
     (*bf)->Enqueue(bf,buf,d.size);
+//    mux.unlock();
     d.Drop();
-
 }
 
 static void PcmCall(SLAndroidSimpleBufferQueueItf bf,void *contex)
@@ -94,9 +73,7 @@ static void PcmCall(SLAndroidSimpleBufferQueueItf bf,void *contex)
     ap->PlayCall((void *)bf);
 }
 
-bool SLAudioPlay::StartPlay(XParameter out)
-{
-
+bool SLAudioPlay::StartPlay(XParameter out){
     //1 创建引擎
     eng = CreateSL();
     if(eng)
@@ -105,22 +82,24 @@ bool SLAudioPlay::StartPlay(XParameter out)
     }
     else
     {
+//        mux.unlock();
         XLOGE("CreateSL failed！ ");
         return false;
     }
 
     //2 创建混音器
-
     SLresult re = 0;
     re = (*eng)->CreateOutputMix(eng,&mix,0,0,0);
     if(re !=SL_RESULT_SUCCESS )
     {
+//        mux.unlock();
         XLOGE("SL_RESULT_SUCCESS failed!");
         return false;
     }
     re = (*mix)->Realize(mix,SL_BOOLEAN_FALSE);
     if(re !=SL_RESULT_SUCCESS )
     {
+//        mux.unlock();
         XLOGE("(*mix)->Realize failed!");
         return false;
     }
@@ -142,13 +121,13 @@ bool SLAudioPlay::StartPlay(XParameter out)
     };
     SLDataSource ds = {&que,&pcm};
 
-
     //4 创建播放器
     const SLInterfaceID ids[] = {SL_IID_BUFFERQUEUE};
     const SLboolean req[] = {SL_BOOLEAN_TRUE};
     re = (*eng)->CreateAudioPlayer(eng,&player,&ds,&audioSink,sizeof(ids)/sizeof(SLInterfaceID),ids,req);
     if(re !=SL_RESULT_SUCCESS )
     {
+//        mux.unlock();
         XLOGE("CreateAudioPlayer failed!");
         return false;
     } else{
@@ -159,12 +138,14 @@ bool SLAudioPlay::StartPlay(XParameter out)
     re = (*player)->GetInterface(player,SL_IID_PLAY,&iplayer);
     if(re !=SL_RESULT_SUCCESS )
     {
+//        mux.unlock();
         XLOGE("GetInterface SL_IID_PLAY failed!");
         return false;
     }
     re = (*player)->GetInterface(player,SL_IID_BUFFERQUEUE,&pcmQue);
     if(re !=SL_RESULT_SUCCESS )
     {
+//        mux.unlock();
         XLOGE("GetInterface SL_IID_BUFFERQUEUE failed!");
         return false;
     }
@@ -177,6 +158,8 @@ bool SLAudioPlay::StartPlay(XParameter out)
 
     //启动队列回调
     (*pcmQue)->Enqueue(pcmQue,"",1);
+//    isExit = false; //todo
+//    mux.unlock();
     XLOGI("SLAudioPlay::StartPlay success!");
     return true;
 }
