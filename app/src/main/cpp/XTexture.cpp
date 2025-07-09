@@ -11,23 +11,32 @@ class CXTexture : public XTexture {
 public:
     XShader sh;//由XTexture来调用
     XTextureType type;
+    std::mutex mux;
 
     virtual bool Init(void *win, XTextureType type) {
+        mux.lock();
+        XEGL::Get()->Close();
+        sh.Close();
+
         this->type = type;
         if (!win) {
+            mux.unlock();
             XLOGE("XTexture Init failed win is NULL");
             return false;
         }
 
 //        if (XEGL::Get()->Init(win)) {//todo
         if (!XEGL::Get()->Init(win)) {
+            mux.unlock();
             return false;
         }
         sh.Init((XShaderType)type);
+        mux.unlock();
         return true;
     }
 
     virtual void Draw(unsigned char *data[], int width, int height) {
+        mux.lock();
         //数据的宽度和高度都是给XShader来进行显示的
         sh.GetTexture(0, width, height, data[0]);
         if (type == XTEXTURE_YUV420P) {
@@ -39,6 +48,15 @@ public:
         sh.Draw();
 
         XEGL::Get()->Draw();
+        mux.unlock();
+    }
+
+    virtual void Drop(){
+        mux.lock();
+        XEGL::Get()->Close();
+        sh.Close();
+        mux.unlock();
+        delete this;//
     }
 };
 

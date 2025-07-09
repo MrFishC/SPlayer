@@ -18,6 +18,11 @@ public:
     static XTexture *Create();
     virtual bool Init(void *win,XTextureType type=XTEXTURE_YUV420P) = 0;
     virtual void Draw(unsigned char*data[],int width,int height) = 0;
+    virtual void Drop() = 0;
+    virtual ~XTexture(){};//这里的析构函数一定要加上 virtual
+protected:
+//    XTexture();//会存在报错 todo 跟下方的区别在哪儿？
+    XTexture(){};
 };
 
 

@@ -9,6 +9,7 @@
 class SLAudioPlay :public IAudioPlay{
 public:
     virtual bool StartPlay(XParameter out);
+    void Close();
     void PlayCall(void *bufq);
 
     SLAudioPlay();
@@ -17,6 +18,7 @@ public:
 //    virtual XData GetData();
 protected:
     unsigned char *buf = 0;
+    std::mutex mux;
 };
 
 

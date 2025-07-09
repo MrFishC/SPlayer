@@ -13,6 +13,7 @@ public:
     virtual void SetRender(void *win) = 0;
     virtual void Render(XData data) = 0;//Render显示
     virtual void Update(XData data);//若添加了 = 0，则子类必须要实现
+    virtual void Close() = 0;
 };
 
 

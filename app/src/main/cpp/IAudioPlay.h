@@ -15,11 +15,14 @@ public:
     virtual void Update(XData data);
     virtual bool StartPlay(XParameter out) = 0;
 
+    virtual void Close() = 0;
+    virtual void Clear();
     //获取缓冲数据，如没有则阻塞
     virtual XData GetData();
 
     //最大缓冲
     int maxFrame = 100;
+    int pts = 0;
 protected:
     std::list<XData> frames;
     std::mutex framesMutex;

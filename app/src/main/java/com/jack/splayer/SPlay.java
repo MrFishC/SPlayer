@@ -4,6 +4,7 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
+import android.view.View;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -14,10 +15,15 @@ import javax.microedition.khronos.opengles.GL10;
  * @描述 Android 8.0 声音重音（最大的可能是声音打开了两次） 视频不能显示的问题   适配处理
  * 继承 GLSurfaceView.Renderer 接口
  */
-public class SPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSurfaceView.Renderer {
+public class SPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSurfaceView.Renderer, View.OnClickListener {
 
     public SPlay(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        setOnClickListener( this );
+
+        //android 8.0 需要设置
+        setRenderer(this);//该方法只需要调用一次，放在构造方法中
     }
 
     @Override
@@ -25,11 +31,8 @@ public class SPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSu
         //        super.surfaceCreated(holder);
         InitView(holder.getSurface());
 
-        //android 8.0 需要设置
-        setRenderer(this);
-
         //只有在绘制数据改变时才绘制view，可以防止GLSurfaceView帧重绘
-//        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        //        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
     @Override
@@ -58,4 +61,11 @@ public class SPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSu
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
 
     }
+
+    @Override
+    public void onClick(View view) {
+        PlayOrPause();
+    }
+
+    public native void PlayOrPause();
 }

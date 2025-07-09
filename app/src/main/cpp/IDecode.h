@@ -10,11 +10,15 @@
 #include <list>
 
 //解码接口，支持硬解码
-class IDecode :public IObserver{
+class IDecode : public IObserver {
 public:
-    //打开解码器
-    virtual bool Open(XParameter para,bool isHard = false) = 0;
 
+    //打开解码器
+    virtual bool Open(XParameter para, bool isHard = false) = 0;
+    virtual void Close() = 0;
+
+    //清理音、视频 缓冲队列 使用
+    virtual void Clear();
     //future模型（跟生产者消费者模型一样） 发送数据到线程解码
     virtual bool SendPacket(XData pkt) = 0;
 
@@ -30,8 +34,8 @@ public:
     int maxList = 100;
 
     //同步时间，再次打开文件要清理
-    int synPts = 0;
-    int pts = 0;
+    int synPts = 0;//赋值时间，在IPlayer::Main中直接将其等于音频的pts
+    int pts = 0;//该pts用来表示当前播放的位置
 
 protected:
     virtual void Main();//解码工作就在该线程来做

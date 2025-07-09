@@ -35,6 +35,10 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         IResample.cpp
         SLAudioPlay.cpp
         IAudioPlay.cpp
+        IPlayer.cpp
+        IPlayerBuilder.cpp
+        FFPlayerBuilder.cpp
+        IPlayerPorxy.cpp
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME}

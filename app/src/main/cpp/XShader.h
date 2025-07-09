@@ -4,6 +4,7 @@
 
 #ifndef SPLAYER_XSHADER_H
 #define SPLAYER_XSHADER_H
+#include <mutex>
 
 enum XShaderType
 {
@@ -15,6 +16,7 @@ enum XShaderType
 class XShader {
 public:
     virtual bool Init(XShaderType type=XSHADER_YUV420P);
+    virtual void Close();
 
     //获取材质 & 映射到内存(buf中)
     void GetTexture(unsigned int index,int width,int height,unsigned char *buf,bool isa = false);//isa:是否有透明通道
@@ -24,6 +26,8 @@ protected:
     unsigned int fsh = 0;
     unsigned int program = 0;
     unsigned int texts[100] = {0};
+
+    std::mutex mux;
 };
 
 

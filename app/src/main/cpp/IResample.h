@@ -13,7 +13,7 @@ public:
     //in:从解封装器中获取  out：封装的
 //    virtual bool Open(XParameter in,XParameter out) = 0;//todo
     virtual bool Open(XParameter in,XParameter out=XParameter()) = 0;
-
+    virtual void Close() = 0;
     virtual XData Resample(XData data) = 0;
 
     virtual void Update(XData data);

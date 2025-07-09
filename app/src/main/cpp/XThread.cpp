@@ -12,11 +12,28 @@ void XSleep(int mis) {
     this_thread::sleep_for(du);
 }
 
-void XThread::Start() {
+bool XThread::Start() {
     isExit = false;
+    isPause = false;
     thread th(&XThread::ThreadMain, this);
     th.detach();//当前线程放弃对新线程的控制
     //不放弃的话：可能会造成 当对象被清空的时候，相关资源可能造成线程出错
+    return true;
+}
+
+void XThread::SetPause(bool isP)
+{
+    isPause = isP;
+    //等待100毫秒           等待的意义 暂时不太理解
+    for(int i = 0; i < 10; i++)
+    {
+        if(isPausing == isP)
+        {
+            break;
+        }
+        XSleep(10);
+    }
+
 }
 
 //通过控制isExit安全停止线程（不一定成功）

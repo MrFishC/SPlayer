@@ -12,6 +12,7 @@ enum XDataType {
 
 struct XData {
     int type = 0;
+    int pts = 0;//音视频同步 在FFDemux::Read()中将pts计算出来，然后存储到XData中
     unsigned char *data = 0;
     //datas:存放的是解码后的数据
     unsigned char *datas[8] = {0};
