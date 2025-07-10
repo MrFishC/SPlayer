@@ -93,7 +93,8 @@ XParameter FFDemux::GetAPara() {
     XParameter para;
     para.para = ic->streams[re]->codecpar;
 
-    para.channels = ic->streams[re]->codecpar->channels;
+//    para.channels = ic->streams[re]->codecpar->channels;
+    para.channels = ic->streams[re]->codecpar->ch_layout.nb_channels;
     para.sample_rate = ic->streams[re]->codecpar->sample_rate;
     mux.unlock();
     return para;
@@ -145,10 +146,11 @@ FFDemux::FFDemux() {
 
         //这里暂未考虑线程安全的问题
 
-        //注册所有的封装器
-        av_register_all();
-        //注册所有的解码器
-        avcodec_register_all();
+//        从 FFmpeg 4.0 开始：编解码器和复用器/解复用器会在首次使用时自动注册
+//        //注册所有的封装器
+//        av_register_all();
+//        //注册所有的解码器
+//        avcodec_register_all();
         //初始化网络
         avformat_network_init();
         XLOGI("register ffmpeg");

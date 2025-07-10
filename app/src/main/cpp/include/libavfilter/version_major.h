@@ -1,6 +1,5 @@
 /*
- * Filter graphs
- * copyright (c) 2007 Bobby Bingham
+ * Version macros.
  *
  * This file is part of FFmpeg.
  *
@@ -19,10 +18,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVFILTER_AVFILTERGRAPH_H
-#define AVFILTER_AVFILTERGRAPH_H
+#ifndef AVFILTER_VERSION_MAJOR_H
+#define AVFILTER_VERSION_MAJOR_H
 
-#include "avfilter.h"
-#include "libavutil/log.h"
+/**
+ * @file
+ * @ingroup lavfi
+ * Libavfilter version macros
+ */
 
-#endif /* AVFILTER_AVFILTERGRAPH_H */
+#define LIBAVFILTER_VERSION_MAJOR  10
+
+/**
+ * FF_API_* defines may be placed below to indicate public API that will be
+ * dropped at a future version bump. The defines themselves are not part of
+ * the public API and may change, break or disappear at any time.
+ */
+
+#define FF_API_LINK_PUBLIC     (LIBAVFILTER_VERSION_MAJOR < 11)
+
+#endif /* AVFILTER_VERSION_MAJOR_H */
