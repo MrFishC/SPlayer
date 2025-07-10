@@ -25,7 +25,7 @@ public:
             return false;
         }
 
-//        if (XEGL::Get()->Init(win)) {//todo
+//        if (XEGL::Get()->Init(win)) {//错误点记录，导致视频无法正常渲染
         if (!XEGL::Get()->Init(win)) {
             mux.unlock();
             return false;
@@ -61,5 +61,6 @@ public:
 };
 
 XTexture *XTexture::Create() {
-    return new CXTexture();
+    //当子类（派生类）的构造函数被调用时，父类（基类）的构造函数会自动被调用，这是继承机制的一部分
+    return new CXTexture();// 这里会隐式调用 XTexture::XTexture()
 }

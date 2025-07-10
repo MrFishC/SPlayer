@@ -15,8 +15,11 @@ void XSleep(int mis) {
 bool XThread::Start() {
     isExit = false;
     isPause = false;
+    // 创建新线程，执行ThreadMain方法
+    //thread 是 C++11 标准库提供的线程类，用于创建和管理线程
+    //参数3，由于 ThreadMain 是一个成员函数，它必须绑定到一个对象才能调用
     thread th(&XThread::ThreadMain, this);
-    th.detach();//当前线程放弃对新线程的控制
+    th.detach();//当前线程放弃对新线程的控制  分离线程(让线程独立运行)
     //不放弃的话：可能会造成 当对象被清空的时候，相关资源可能造成线程出错
     return true;
 }

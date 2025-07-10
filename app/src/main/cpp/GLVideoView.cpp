@@ -18,8 +18,10 @@ void GLVideoView::Close() {
     mux.unlock();
 }
 
+//在IPlayerBuilder::BuilderPlayer中做了设置  IVideoView是 视频解码 的观察者
+//只要 视频编码 那里有动静 就会触发 IVideoView的Update，而在IVideoView的Update中会调用Render
 void GLVideoView::Render(XData data) {
-    //todo 错误点
+    //写错的代码
 //    if(!view){
 //        txt = XTexture::Create();
 //        txt->Init(view);

@@ -93,7 +93,9 @@ bool IPlayer::Open(const char *path) {
     return true;
 }
 
+//子类 IPlayer 的 Start()完全覆盖了父类 XThread 的 Start()，调用时不会自动触发父类的版本(根据Deepseek进行收集)
 bool IPlayer::Start() {
+
 //    mux.lock();
 //    if (!demux || !demux->Start()) {
 //        XLOGE("demux->Start failed!");
@@ -135,23 +137,52 @@ bool IPlayer::Start() {
 //        }
 //    }
 
+//    XLOGE("测试一下执行的流程  哈哈哈哈哈");
+
     mux.lock();
     if (audioPlay)
         audioPlay->StartPlay(outPara);
+
     //启动解码线程
     if (adecode)
-        adecode->Start();
+        //adecode是指FFDecode
+        //由于 FFDecode 没有重写 Start()，所以会调用基类 XThread::Start()
+        //根据XThread::Start()可以知道，thread th(&XThread::ThreadMain, this)中的this代表FFDecode，新线程会执行 XThread::ThreadMain()
+        //继续查看ThreadMain()，会调用虚函数 Main()
+        //而IDecode 重写了Main
+        //由于 FFDecode 是 IDecode 的具体实现（实际运行的是 IDecode::Main()）
+        adecode->Start();//总结：开启了新线程--->对应的逻辑查看 IDecode::Main()即可
     //启动解码线程
     if (vdecode)
-        vdecode->Start();
+        vdecode->Start();//同上。总结：开启了新线程--->对应的逻辑查看 IDecode::Main()即可
     //启动封装器
-    if (!demux || !demux->Start()) {
+        //demux是指 FFDemux
+        //由于 FFDemux 没有重写 Start()，所以会调用基类 XThread::Start()
+        //根据XThread::Start()可以知道，thread th(&XThread::ThreadMain, this)中的this代表 FFDemux ，新线程会执行 XThread::ThreadMain()
+        //继续查看ThreadMain()，会调用虚函数 Main()
+        //而 IDemux 重写了Main
+        //由于 FFDemux 是 IDemux 的具体实现（实际运行的是 IDemux::Main()）
+    if (!demux || !demux->Start()) {//总结：开启了新线程--->对应的逻辑查看 IDemux::Main()即可
         XLOGE("demux->Start failed!");
         mux.unlock();
         return false;
     }
+
     //启动同步线程
-    XThread::Start();//启动 IPlayer::Main()
+    //由于 IPlayer 继承自 XThread 并重写了 Main()，实际执行的是 IPlayer::Main()
+    //调用基类 XThread::Start()
+//    IPlayer::Start()
+//    │
+//    ├─ 启动xxx线程
+//    └─ 调用 XThread::Start()
+//    │
+//    └─ 创建新线程执行 XThread::ThreadMain()
+//    │
+//    └─ 调用 IPlayer::Main()  // 多态
+    // 显式调用父类版本
+    //在 IPlayer::Start() 中显式调用 XThread::Start() 时，XThread::Start() 函数中的 thread th(&XThread::ThreadMain, this)对应的 this 指针指向的是 当前 IPlayer 对象实例
+    //虽然代码在 XThread 的方法中，但 this 指向的是最初调用 Start() 的 IPlayer 对象 （可以通过日志打印来进行验证）
+    XThread::Start();//该行代码最终会触发 启动 IPlayer::Main()
 
     mux.unlock();
     return true;
@@ -167,6 +198,7 @@ void IPlayer::InitView(void *win) {
 }
 
 void IPlayer::Main() {
+    XLOGE("代码执行逻辑 IPlayer ---> Main ");
     while (!isExit) {
         mux.lock();
 

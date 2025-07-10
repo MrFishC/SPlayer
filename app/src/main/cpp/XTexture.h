@@ -21,9 +21,8 @@ public:
     virtual void Drop() = 0;
     virtual ~XTexture(){};//这里的析构函数一定要加上 virtual
 protected:
-//    XTexture();//会存在报错 todo 跟下方的区别在哪儿？
-    XTexture(){};
+//    XTexture();//会存在报错  所有调用 XTexture 构造函数的地方（如派生类构造、new CXTexture）都会引用一个不存在的符号
+//    XTexture(){};//可以注释掉    都是细节
 };
-
 
 #endif //SPLAYER_XTEXTURE_H

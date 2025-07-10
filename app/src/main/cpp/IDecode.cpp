@@ -47,7 +47,7 @@ void IDecode::Main() {
 
                 XLOGE("RecvFrame %d", frame.size);
 
-                //在执行力了RecvFrame之后对pts（用来表示当前播放的位置）进行赋值
+                //在执行了RecvFrame之后对pts（用来表示当前播放的位置）进行赋值
                 pts = frame.pts;
 
                 //发送数据给观察者
@@ -60,6 +60,7 @@ void IDecode::Main() {
     }
 }
 
+//音、视频解码器 观察 解封装，而 IDemux::Main() 中会去调用 Notify
 //生产者
 void IDecode::Update(XData pkt) {
     if (pkt.isAudio != isAudio) {
