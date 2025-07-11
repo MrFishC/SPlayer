@@ -8,6 +8,7 @@
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavcodec/jni.h>
+#include "libavutil/imgutils.h"
 }
 
 void FFDecode::InitHard(void *vm) {
@@ -67,10 +68,9 @@ void FFDecode::Close() {
 
     mux.lock();
     pts = 0;
-    if(frame)
+    if (frame)
         av_frame_free(&frame);
-    if(codec)
-    {
+    if (codec) {
         avcodec_close(codec);
         avcodec_free_context(&codec);
     }
@@ -78,11 +78,10 @@ void FFDecode::Close() {
 }
 
 //seek时 对于解码器的缓冲 一定要把之前解码的内容给清除掉，若不做清除，则可能会出现花屏  Clear方法在FFDecode中要进一步实现一下
-void FFDecode::Clear()
-{
+void FFDecode::Clear() {
     IDecode::Clear();
     mux.lock();
-    if(codec)
+    if (codec)
         avcodec_flush_buffers(codec);
     mux.unlock();
 }
@@ -120,8 +119,33 @@ XData FFDecode::RecvFrame() {
     XData d;
     d.data = (unsigned char *) frame;
     if (codec->codec_type == AVMEDIA_TYPE_VIDEO) {
-        //todo 大小的计算
-        d.size = (frame->linesize[0] + frame->linesize[1] + frame->linesize[2]) * frame->height;
+        //大小的计算
+//        d.size = (frame->linesize[0] + frame->linesize[1] + frame->linesize[2]) * frame->height;//猜测：应该是仅做粗略的计算
+
+        //使用FFmpeg工具函数   使用ffmpeg的函数可能更合适
+        d.size = av_image_get_buffer_size(
+                (AVPixelFormat) frame->format,
+                frame->width,
+                frame->height,
+                1 // 行对齐
+        );
+
+        //linesize 的含义
+        //frame->linesize[i] 表示第 i 个平面（Y、U、V分量）中一行像素的字节数。由于内存对齐（如16/32字节对齐），linesize 可能略大于实际的图像宽度。
+
+        //YUV格式的存储结构
+        //Y分量（亮度）：完整分辨率（width × height），对应 frame->data[0]。
+        //U/V分量（色度）：通常为半分辨率（如 width/2 × height/2），对应 frame->data[1] 和 frame->data[2]（假设是YUV420P格式）。
+
+        //linesize[0] * height：Y分量的总大小（行字节数 × 行数）。
+        //linesize[1] * (height/2)：U分量的总大小（色度行字节数 × 半行数）。
+        //linesize[2] * (height/2)：V分量的总大小（同上）。
+        //代码中的写法：
+        //原代码简化为 (linesize[0] + linesize[1] + linesize[2]) * height，这实际上是近似计算，可能存在误差（尤其在非YUV420P格式时）。
+
+        //原代码通过累加三个平面的 linesize 并乘以高度的方式，快速估算了YUV420P视频帧的数据大小。
+        //虽然存在对齐冗余和格式假设的局限性，但在大多数场景下能正常工作。精确实现需结合像素格式或调用FFmpeg的辅助函数
+
         d.width = frame->width;
         d.height = frame->height;
     } else {

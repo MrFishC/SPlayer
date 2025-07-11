@@ -7,14 +7,6 @@
 //#include "IPlayer.h"
 #include "IPlayerPorxy.h"
 
-//class TestObs:public IObserver
-//{
-//public:
-//    void update(XData d){
-//        XLOGI("TestObs updatea size is %d",d.size);//todo 日志未被触发，但是整个流程又没有查出哪里存在问题
-//    }
-//};
-
 //IVideoView *view = NULL;
 
 //static IPlayer *player = NULL;
@@ -58,9 +50,7 @@ jint JNI_OnLoad(JavaVM *vm, void *res) {
     //测试代码
 //    player = FFPlayerBuilder::Get()->BuilderPlayer();
 
-////    TestObs *tobs = new TestObs();
 //    IDemux *de = new FFDemux();
-////    de->AddObs(tobs);
 //
 //    de->Open("/sdcard/1080.mp4");
 //
