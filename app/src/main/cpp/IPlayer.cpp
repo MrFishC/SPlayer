@@ -95,6 +95,23 @@ bool IPlayer::Open(const char *path) {
 
 //子类 IPlayer 的 Start()完全覆盖了父类 XThread 的 Start()，调用时不会自动触发父类的版本(根据Deepseek进行收集)
 bool IPlayer::Start() {
+    //todo 待对比分析        可以保留的写法
+//    mux.lock();
+//    if(vdecode)
+//        vdecode->Start();
+//
+//    if(!demux || !demux->Start())
+//    {
+//        mux.unlock();
+//        XLOGE("demux->Start failed!");
+//        return false;
+//    }
+//    if(adecode)
+//        adecode->Start();
+//    if(audioPlay)
+//        audioPlay->StartPlay(outPara);
+//    XThread::Start();
+//    mux.unlock();
 
 //    mux.lock();
 //    if (!demux || !demux->Start()) {
@@ -156,12 +173,12 @@ bool IPlayer::Start() {
     if (vdecode)
         vdecode->Start();//同上。总结：开启了新线程--->对应的逻辑查看 IDecode::Main()即可
     //启动封装器
-        //demux是指 FFDemux
-        //由于 FFDemux 没有重写 Start()，所以会调用基类 XThread::Start()
-        //根据XThread::Start()可以知道，thread th(&XThread::ThreadMain, this)中的this代表 FFDemux ，新线程会执行 XThread::ThreadMain()
-        //继续查看ThreadMain()，会调用虚函数 Main()
-        //而 IDemux 重写了Main
-        //由于 FFDemux 是 IDemux 的具体实现（实际运行的是 IDemux::Main()）
+    //demux是指 FFDemux
+    //由于 FFDemux 没有重写 Start()，所以会调用基类 XThread::Start()
+    //根据XThread::Start()可以知道，thread th(&XThread::ThreadMain, this)中的this代表 FFDemux ，新线程会执行 XThread::ThreadMain()
+    //继续查看ThreadMain()，会调用虚函数 Main()
+    //而 IDemux 重写了Main
+    //由于 FFDemux 是 IDemux 的具体实现（实际运行的是 IDemux::Main()）
     if (!demux || !demux->Start()) {//总结：开启了新线程--->对应的逻辑查看 IDemux::Main()即可
         XLOGE("demux->Start failed!");
         mux.unlock();

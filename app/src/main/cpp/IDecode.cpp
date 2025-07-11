@@ -7,7 +7,7 @@
 //消费者
 void IDecode::Main() {
     while (!isExit) {
-        if(IsPause()){
+        if (IsPause()) {
             XSleep(2);
             continue;
         }
@@ -17,8 +17,11 @@ void IDecode::Main() {
         //音视频同步   在业务逻辑这里添加
         //要知道音频的播放时间   需要将其进行存储
 
-//        if(!isAudio && synPts > 0){
-        if (isAudio && synPts > 0) {
+        if (!isAudio && synPts > 0) {
+            //逻辑错误导致的问题
+            //视频 播放 存在着 延迟感
+            //			音视频 不同步 感觉明显			视频画面 明显 早于 音频播放
+//        if (isAudio && synPts > 0) {//写法错误 导致的问题
             //开始音视频同步的逻辑
             if (synPts < pts) {
                 //此时，表示音频播放的比视频慢，则视频需要等一等
@@ -83,8 +86,7 @@ void IDecode::Update(XData pkt) {
 //清理的时候并不一定调用关闭的方法  但是FFDecode关闭的时候一定要调用清理的工作       seek的时候也要调用
 void IDecode::Clear() {
     packsMutex.lock();
-    while(!packs.empty())
-    {
+    while (!packs.empty()) {
         packs.front().Drop();
         packs.pop_front();
     }
